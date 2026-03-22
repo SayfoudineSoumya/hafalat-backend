@@ -1,18 +1,13 @@
 pipeline {
     agent any
-
-    environment {
-        SONAR_HOST_URL = 'http://localhost:9000'
-        SONAR_TOKEN = credentials('sonar-token')
-    }
-
+    
     stages {
 
-        stage('Checkout') {
-            steps {
-                 git 'https://github.com/SayfoudineSoumya/hafalat-backend.git'
-            }
-        }
+        // stage('Checkout') {
+        //     steps {
+        //          git 'https://github.com/SayfoudineSoumya/hafalat-backend.git'
+        //     }
+        // }
 
         stage('Build') {
             steps {
@@ -28,12 +23,9 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                sh """
-                mvn sonar:sonar \
-                -Dsonar.projectKey=jenkins-hafalat \
-                -Dsonar.host.url=$SONAR_HOST_URL \
-                -Dsonar.login=$SONAR_TOKEN
-                """
+                withSonarQubeEnv('SonarQube') {
+                    sh 'mvn sonar:sonar -Dsonar.projectKey=hafalat-backend'
+                }
             }
         }
 
