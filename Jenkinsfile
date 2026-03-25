@@ -52,8 +52,8 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh 'docker-compose -f ../hafalat-deployment/docker-compose.yml pull'
-                sh 'docker-compose -f ../hafalat-deployment/docker-compose.yml up -d'
+                sh 'docker-compose -f ../hafalat-devops/docker-compose.yml pull'
+                sh 'docker-compose -f ../hafalat-devops/docker-compose.yml up -d'
             }
         }
     }
