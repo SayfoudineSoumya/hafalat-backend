@@ -2,7 +2,7 @@ pipeline {
     agent {
         docker {
             image 'my-maven-git:latest'
-            args '-v /var/run/docker.sock:/var/run/docker.sock -v /var/jenkins_home/.m2:/root/.m2'
+            args '-v /var/run/docker.sock:/var/run/docker.sock -v /var/jenkins_home/.m2:/root/.m2 --network hafalat-devops_hafalat-network'
         }
     }
 
