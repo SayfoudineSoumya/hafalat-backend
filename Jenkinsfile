@@ -51,9 +51,21 @@ pipeline {
         }
 
         stage('Deploy') {
+            agent any
             steps {
-                sh 'docker-compose -f ../hafalat-devops/docker-compose.yml pull'
-                sh 'docker-compose -f ../hafalat-devops/docker-compose.yml up -d'
+                sh '''
+                    docker pull $IMAGE_NAME:latest
+                    docker stop hafalat-backend || true
+                    docker rm hafalat-backend || true
+                    docker run -d \
+                      --name hafalat-backend \
+                      --network hafalat-devops_hafalat-network \
+                      -p 8080:8080 \
+                      -e SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/hafalat \
+                      -e SPRING_DATASOURCE_USERNAME=admin \
+                      -e SPRING_DATASOURCE_PASSWORD=admin \
+                      $IMAGE_NAME:latest
+                '''
             }
         }
     }
