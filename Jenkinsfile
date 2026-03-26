@@ -51,7 +51,6 @@ pipeline {
         }
 
         stage('Deploy') {
-            agent any
             steps {
                 sh 'docker-compose -f ../hafalat-devops/docker-compose.yml pull'
                 sh 'docker-compose -f ../hafalat-devops/docker-compose.yml up -d'
