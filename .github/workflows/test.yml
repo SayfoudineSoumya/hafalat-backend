@@ -1,0 +1,73 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - feature/**
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        java-version: [17, 21]
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Run Unit Tests
+        run: mvn clean test
+
+      - name: Run Integration Tests
+        run: mvn verify -DskipUnitTests
+
+      - name: Generate Test Coverage Report
+        run: |
+          echo "## Test Report - Java ${{ matrix.java-version }}" >> $GITHUB_STEP_SUMMARY
+          if [ -f target/site/jacoco/index.html ]; then
+            echo "Coverage report generated successfully" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: matrix.java-version == 21
+        with:
+          files: ./target/site/jacoco/jacoco.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+      - name: Archive Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-java-${{ matrix.java-version }}
+          path: |
+            target/surefire-reports/
+            target/failsafe-reports/
+            target/site/jacoco/
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "### Test Results for Java ${{ matrix.java-version }}" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Tests completed" >> $GITHUB_STEP_SUMMARY
