@@ -55,22 +55,6 @@ jobs:
         run: mvn spotbugs:check || true
         continue-on-error: true
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v5
-        if: ${{ secrets.SONAR_TOKEN != '' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=hafalat-backend
-            -Dsonar.organization=sayfoudinesoumya
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.java.binaries=target/classes
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
-            -Dsonar.sources=src/main/java
-            -Dsonar.tests=src/test/java
-
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
         if: github.event_name == 'pull_request'
@@ -90,7 +74,7 @@ jobs:
           echo "- ✅ Code Coverage (JaCoCo)" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Code Style (Checkstyle)" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Bug Detection (SpotBugs)" >> $GITHUB_STEP_SUMMARY
-          echo "- ✅ SonarCloud Analysis" >> $GITHUB_STEP_SUMMARY
+          echo "- ℹ️ SonarQube Analysis: via Jenkins" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Security Audit (OWASP)" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload Quality Reports
